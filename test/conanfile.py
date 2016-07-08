@@ -23,4 +23,4 @@ class DefaultNameConan(ConanFile):
         self.copy(pattern="*.dylib", dst="bin", src="lib")
 
     def test(self):
-        self.run(os.sep.join([".","bin", "testapp"]))
+        self.run("cd bin && .%stestapp" % os.sep)
