@@ -1,7 +1,6 @@
 [![Build Status](https://travis-ci.org/theirix/conan-libevent.svg)](https://travis-ci.org/theirix/conan-libevent)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/theirix/conan-lbevent)](https://ci.appveyor.com/project/theirix/conan-libevent)
 
-
 # conan-libevent
 
 [Conan.io](https://conan.io) package for [libevent](https://github.com/libevent/libevent) library
