@@ -11,7 +11,7 @@ class LibeventConan(ConanFile):
     FOLDER_NAME = 'libevent-%s-stable' % version
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False],
-               "with_openssl": [True, False], 
+               "with_openssl": [True, False],
                "disable_threads": [True, False]}
     default_options = "shared=False", "with_openssl=True", "disable_threads=False"
 
@@ -55,12 +55,16 @@ class LibeventConan(ConanFile):
                     self.output.warn("Copying OpenSSL libraries to fix conftest")
                 if self.settings.os == "Linux":
                     env_line_configure += " LD_LIBRARY_PATH=" + ':'.join(self.deps_cpp_info.libdirs)
-            
+
+            # required to correctly find static libssl on Linux
+            if self.options.with_openssl and self.settings.os == "Linux":
+                env_line_configure += " OPENSSL_LIBADD=-ldl"
+
             # disable rpath build
             old_str = "-install_name \$rpath/"
             new_str = "-install_name "
             replace_in_file("%s/configure" % self.FOLDER_NAME, old_str, new_str)
- 
+
             # compose configure options
             suffix = ''
             if not self.options.shared:
@@ -71,15 +75,15 @@ class LibeventConan(ConanFile):
                 suffix += "--disable-openssl "
             if self.options.disable_threads:
                 suffix += "--disable-thread-support "
-    
+
             cmd = 'cd %s && %s %s ./configure %s' % (self.FOLDER_NAME, env_line, env_line_configure, suffix)
             self.output.warn('Running: ' + cmd)
             self.run(cmd)
-        
+
             cmd = 'cd %s && %s make' % (self.FOLDER_NAME, env_line)
             self.output.warn('Running: ' + cmd)
             self.run(cmd)
-            
+
             # now clean imported libs
             if imported_libs:
                 for imported_lib in imported_libs:
@@ -98,7 +102,7 @@ class LibeventConan(ConanFile):
             self.copy(pattern="*.a", dst="lib", keep_path=False)
 
     def package_info(self):
-        
+
         if self.settings.os == "Linux" or self.settings.os == "Macos":
             self.cpp_info.libs = ['event']
             if self.options.with_openssl:
