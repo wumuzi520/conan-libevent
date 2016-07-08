@@ -90,7 +90,7 @@ class LibeventConan(ConanFile):
                     os.unlink(self.FOLDER_NAME + '/' + imported_lib)
 
     def package(self):
-        self.copy("*", dst="include", src="%s/include" % (self.FOLDER_NAME))
+        self.copy("*.h", dst="include", src="%s/include" % (self.FOLDER_NAME))
         for header in ['evdns', 'event', 'evhttp', 'evrpc', 'evutil']:
             self.copy(header+'.h', dst="include", src="%s" % (self.FOLDER_NAME))
         if self.options.shared:
