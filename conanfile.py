@@ -21,6 +21,7 @@ class LibeventConan(ConanFile):
         if self.options.with_openssl:
             self.requires.add("OpenSSL/1.0.2j@lasote/stable", private=False)
             self.options["OpenSSL"].shared = self.options.shared
+            self.options["OpenSSL"].no_electric_fence = True
 
     def source(self):
         tarball_name = self.FOLDER_NAME + '.tar.gz'
