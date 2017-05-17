@@ -21,7 +21,7 @@ class LibeventConan(ConanFile):
 
     def requirements(self):
         if self.options.with_openssl:
-            self.requires.add("OpenSSL/1.0.2j@lasote/stable", private=False)
+            self.requires.add("OpenSSL/[>1.0.2a,<1.0.3]@lasote/stable", private=False)
             self.options["OpenSSL"].shared = self.options.shared
             self.options["OpenSSL"].no_electric_fence = True
 
