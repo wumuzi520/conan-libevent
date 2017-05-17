@@ -1,5 +1,5 @@
-from conans import ConanFile, ConfigureEnvironment
-from conans.tools import download, untargz, check_sha1, replace_in_file
+from conans import ConanFile, AutoToolsBuildEnvironment
+from conans.tools import download, untargz, check_sha1, replace_in_file, environment_append
 import os
 import shutil
 
@@ -34,13 +34,11 @@ class LibeventConan(ConanFile):
 
     def build(self):
 
-        env = ConfigureEnvironment(self.deps_cpp_info, self.settings)
-
         if self.settings.os == "Linux" or self.settings.os == "Macos":
 
-            env_line = env.command_line
-            env_line_configure = env_line
+            env_build = AutoToolsBuildEnvironment(self)
 
+            env_vars = env_build.vars.copy()
             # Configure script creates conftest that cannot execute without shared openssl binaries.
             # Ways to solve the problem:
             # 1. set *LD_LIBRARY_PATH (works with Linux but does not work on OS X 10.11 with SIP)
@@ -54,11 +52,14 @@ class LibeventConan(ConanFile):
                         shutil.copy(self.deps_cpp_info['OpenSSL'].lib_paths[0] + '/' + imported_lib, self.FOLDER_NAME)
                     self.output.warn("Copying OpenSSL libraries to fix conftest")
                 if self.settings.os == "Linux":
-                    env_line_configure += " LD_LIBRARY_PATH=" + ':'.join(self.deps_cpp_info.libdirs)
+                    if 'LD_LIBRARY_PATH' in env_vars:
+                        env_vars['LD_LIBRARY_PATH'] = ':'.join([env_vars['LD_LIBRARY_PATH']] + self.deps_cpp_info.libdirs)
+                    else:
+                        env_vars['LD_LIBRARY_PATH'] = ':'.join(self.deps_cpp_info.libdirs)
 
             # required to correctly find static libssl on Linux
             if self.options.with_openssl and self.settings.os == "Linux":
-                env_line_configure += " OPENSSL_LIBADD=-ldl"
+                env_vars['OPENSSL_LIBADD'] = '-ldl'
 
             # disable rpath build
             old_str = "-install_name \$rpath/"
@@ -76,18 +77,21 @@ class LibeventConan(ConanFile):
             if self.options.disable_threads:
                 suffix += "--disable-thread-support "
 
-            cmd = 'cd %s && %s %s ./configure %s' % (self.FOLDER_NAME, env_line, env_line_configure, suffix)
-            self.output.warn('Running: ' + cmd)
-            self.run(cmd)
+            self.output.warn('Using env vars: ' + repr(env_vars))
+            with environment_append(env_vars):
 
-            cmd = 'cd %s && %s make' % (self.FOLDER_NAME, env_line)
-            self.output.warn('Running: ' + cmd)
-            self.run(cmd)
+                cmd = 'cd %s && ./configure %s' % (self.FOLDER_NAME, suffix)
+                self.output.warn('Running: ' + cmd)
+                self.run(cmd)
 
-            # now clean imported libs
-            if imported_libs:
-                for imported_lib in imported_libs:
-                    os.unlink(self.FOLDER_NAME + '/' + imported_lib)
+                cmd = 'cd %s && make' % (self.FOLDER_NAME)
+                self.output.warn('Running: ' + cmd)
+                self.run(cmd)
+
+                # now clean imported libs
+                if imported_libs:
+                    for imported_lib in imported_libs:
+                        os.unlink(self.FOLDER_NAME + '/' + imported_lib)
 
     def package(self):
         self.copy("*.h", dst="include", src="%s/include" % (self.FOLDER_NAME))
