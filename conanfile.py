@@ -114,4 +114,3 @@ class LibeventConan(ConanFile):
                 self.cpp_info.libs.extend(["event_openssl"])
         if self.settings.os == "Linux":
             self.cpp_info.libs.extend(["rt"])
-
