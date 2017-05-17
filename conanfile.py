@@ -16,9 +16,10 @@ class LibeventConan(ConanFile):
                "disable_threads": [True, False]}
     default_options = "shared=False", "with_openssl=True", "disable_threads=False"
 
-
-    def configure(self):
+    def config_options(self):
         del self.settings.compiler.libcxx
+
+    def requirements(self):
         if self.options.with_openssl:
             self.requires.add("OpenSSL/1.0.2j@lasote/stable", private=False)
             self.options["OpenSSL"].shared = self.options.shared
