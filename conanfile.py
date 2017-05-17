@@ -7,6 +7,7 @@ class LibeventConan(ConanFile):
     name = "libevent"
     version = "2.0.22"
     url = "https://github.com/theirix/conan-libevent"
+    description = 'libevent - an event notification library'
     license = "https://github.com/libevent/libevent/blob/release-%s-stable/LICENSE" % version
     FOLDER_NAME = 'libevent-%s-stable' % version
     settings = "os", "compiler", "build_type", "arch"
