@@ -63,7 +63,7 @@ class LibeventConan(ConanFile):
                 env_vars['OPENSSL_LIBADD'] = '-ldl'
 
             # disable rpath build
-            old_str = "-install_name \$rpath/"
+            old_str = "-install_name \\$rpath/"
             new_str = "-install_name "
             replace_in_file("%s/configure" % self.FOLDER_NAME, old_str, new_str)
 
