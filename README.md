@@ -1,43 +1,48 @@
-[![Build Status](https://travis-ci.org/theirix/conan-libevent.svg)](https://travis-ci.org/theirix/conan-libevent)
+## This repository holds a conan recipe for libevent.
 
-# conan-libevent
+[Conan.io](https://conan.io) package for [libevent](http://libevent.org/) project
 
-[![badge](https://img.shields.io/badge/conan.io-libevent%2F2.0.22-green.svg?logo=data:image/png;base64%2CiVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAMAAAAolt3jAAAA1VBMVEUAAABhlctjlstkl8tlmMtlmMxlmcxmmcxnmsxpnMxpnM1qnc1sn85voM91oM11oc1xotB2oc56pNF6pNJ2ptJ8ptJ8ptN9ptN8p9N5qNJ9p9N9p9R8qtOBqdSAqtOAqtR%2BrNSCrNJ/rdWDrNWCsNWCsNaJs9eLs9iRvNuVvdyVv9yXwd2Zwt6axN6dxt%2Bfx%2BChyeGiyuGjyuCjyuGly%2BGlzOKmzOGozuKoz%2BKqz%2BOq0OOv1OWw1OWw1eWx1eWy1uay1%2Baz1%2Baz1%2Bez2Oe02Oe12ee22ujUGwH3AAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfgBQkREyOxFIh/AAAAiklEQVQI12NgAAMbOwY4sLZ2NtQ1coVKWNvoc/Eq8XDr2wB5Ig62ekza9vaOqpK2TpoMzOxaFtwqZua2Bm4makIM7OzMAjoaCqYuxooSUqJALjs7o4yVpbowvzSUy87KqSwmxQfnsrPISyFzWeWAXCkpMaBVIC4bmCsOdgiUKwh3JojLgAQ4ZCE0AMm2D29tZwe6AAAAAElFTkSuQmCC)](http://www.conan.io/source/libevent/2.0.22/theirix/stable)
-[Conan.io](https://conan.io) package for [libevent](https://github.com/libevent/libevent) library
+The packages generated with this **conanfile** can be found in [Bintray](https://bintray.com/bincrafters/public-conan/libevent%3Abincrafters).
 
-The packages generated with this **conanfile** can be found in [conan.io](https://conan.io/source/libevent/2.0.22/theirix/stable).
-
-## Build packages
-
-    $ pip install conan_package_tools
-    $ python build.py
-    
-## Upload packages to server
-
-    $ conan upload libevent/2.0.22@theirix/stable --all
-    
-## Reuse the packages
+## For Users: Use this package
 
 ### Basic setup
 
-    $ conan install libevent/2.0.22@theirix/stable
-    
+    $ conan install libevent/2.0.22@bincrafters/stable
+
 ### Project setup
 
 If you handle multiple dependencies in your project is better to add a *conanfile.txt*
-    
-    [requires]
-    libevent/2.0.22@theirix/stable
 
-    [options]
-    libevent:shared=true # false
-    
+    [requires]
+    libevent/2.0.22@bincrafters/stable
+
     [generators]
     txt
-    cmake
 
-Complete the installation of requirements for your project running:</small></span>
+Complete the installation of requirements for your project running:
 
-    conan install . 
+    $ mkdir build && cd build && conan install ..
+	
+Note: It is recommended that you run conan install from a build directory and not the root of the project directory.  This is because conan generates *conanbuildinfo* files specific to a single build configuration which by default comes from an autodetected default profile located in ~/.conan/profiles/default .  If you pass different build configuration options to conan install, it will generate different *conanbuildinfo* files.  Thus, they should not be added to the root of the project, nor committed to git. 
 
-Project setup installs the library (and all his dependencies) and generates the files *conanbuildinfo.txt* and *conanbuildinfo.cmake* with all the paths and variables that you need to link with your dependencies.
+## For Packagers: Publish this Package
+
+The example below shows the commands used to publish to bincrafters conan repository. To publish to your own conan respository (for example, after forking this git repository), you will need to change the commands below accordingly. 
+
+## Build  and package 
+
+The following command both runs all the steps of the conan file, and publishes the package to the local system cache.  This includes downloading dependencies from "build_requires" and "requires" , and then running the build() method. 
+
+    $ conan create bincrafters/stable
+	
+## Add Remote
+
+	$ conan remote add bincrafters "https://api.bintray.com/conan/bincrafters/public-conan"
+
+## Upload
+
+    $ conan upload libevent/2.0.22@bincrafters/stable --all -r bincrafters
+
+### License
+[3-Clause BSD](http://libevent.org/LICENSE.txt)

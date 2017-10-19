@@ -1,5 +1,4 @@
-from conans import ConanFile, AutoToolsBuildEnvironment
-from conans.tools import download, untargz, check_sha1, replace_in_file, environment_append
+from conans import ConanFile, AutoToolsBuildEnvironment, tools
 import os
 import shutil
 
@@ -9,7 +8,7 @@ class LibeventConan(ConanFile):
     url = "https://github.com/theirix/conan-libevent"
     description = 'libevent - an event notification library'
     license = "https://github.com/libevent/libevent/blob/release-%s-stable/LICENSE" % version
-    FOLDER_NAME = 'libevent-%s-stable' % version
+    FOLDER_NAME = 'libevent'
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False],
                "with_openssl": [True, False],
@@ -23,16 +22,11 @@ class LibeventConan(ConanFile):
         if self.options.with_openssl:
             self.requires.add("OpenSSL/[>1.0.2a,<1.0.3]@conan/stable", private=False)
             self.options["OpenSSL"].shared = self.options.shared
-            # latest openssl disabled fence
-            # self.options["OpenSSL"].no_electric_fence = True
 
     def source(self):
-        tarball_name = self.FOLDER_NAME + '.tar.gz'
-        download("https://github.com/libevent/libevent/releases/download/release-%s-stable/%s.tar.gz"
-                 % (self.version, self.FOLDER_NAME), tarball_name)
-        check_sha1(tarball_name, "a586882bc93a208318c70fc7077ed8fca9862864")
-        untargz(tarball_name)
-        os.unlink(tarball_name)
+        tools.get("https://github.com/libevent/libevent/releases/download/release-{0}-stable/libevent-{0}-stable.tar.gz".format(self.version))
+        self.run('ls')
+        os.rename("libevent-{0}-stable".format(self.version), "libevent")
 
     def build(self):
 
@@ -66,7 +60,7 @@ class LibeventConan(ConanFile):
             # disable rpath build
             old_str = "-install_name \\$rpath/"
             new_str = "-install_name "
-            replace_in_file("%s/configure" % self.FOLDER_NAME, old_str, new_str)
+            tools.replace_in_file("%s/configure" % self.FOLDER_NAME, old_str, new_str)
 
             # compose configure options
             suffix = ''
@@ -80,7 +74,7 @@ class LibeventConan(ConanFile):
                 suffix += "--disable-thread-support "
 
             self.output.warn('Using env vars: ' + repr(env_vars))
-            with environment_append(env_vars):
+            with tools.environment_append(env_vars):
 
                 cmd = 'cd %s && ./configure %s' % (self.FOLDER_NAME, suffix)
                 self.output.warn('Running: ' + cmd)
@@ -108,10 +102,7 @@ class LibeventConan(ConanFile):
             self.copy(pattern="*.a", dst="lib", keep_path=False)
 
     def package_info(self):
-
         if self.settings.os == "Linux" or self.settings.os == "Macos":
-            self.cpp_info.libs = ['event']
-            if self.options.with_openssl:
-                self.cpp_info.libs.extend(["event_openssl"])
+            self.cpp_info.libs = tools.collect_libs(self)
         if self.settings.os == "Linux":
             self.cpp_info.libs.extend(["rt"])
