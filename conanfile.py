@@ -18,7 +18,8 @@ class LibeventConan(ConanFile):
     def config_options(self):
         del self.settings.compiler.libcxx
         if self.settings.os == "Windows":
-            self.options.with_openssl = False
+            del self.options.shared
+            del self.options.with_openssl
 
     def requirements(self):
         if self.options.with_openssl:
