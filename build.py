@@ -1,4 +1,5 @@
 from conan.packager import ConanMultiPackager, os, re
+import platform
 
 
 if __name__ == "__main__":
@@ -8,14 +9,14 @@ if __name__ == "__main__":
     reponame_t = os.getenv("TRAVIS_REPO_SLUG","")
     repobranch_t = os.getenv("TRAVIS_BRANCH","")
 
+    with open("conanfile.py", "r") as conanfile:
+        contents = conanfile.read()
+        name = re.search(r'name\s*=\s*"(\S*)"', contents).groups()[0]
+        version = re.search(r'version\s*=\s*"(\S*)"', contents).groups()[0]
+
     if reponame_t or reponame_a:
         username, repo = reponame_a.split("/") if reponame_a else reponame_t.split("/")
         channel, version = repobranch_a.split("/") if repobranch_a else repobranch_t.split("/")
-        
-        with open("conanfile.py", "r") as conanfile:
-            contents = conanfile.read()
-            name = re.search(r'name\s*=\s*"(\S*)"', contents).groups()[0]
-            version = re.search(r'version\s*=\s*"(\S*)"', contents).groups()[0]
         
         os.environ["CONAN_USERNAME"] = username
         os.environ["CONAN_CHANNEL"] = channel
@@ -24,5 +25,9 @@ if __name__ == "__main__":
         os.environ["CONAN_REMOTES"]="https://api.bintray.com/conan/{0}/public-conan".format(username)
 
     builder = ConanMultiPackager()
-    builder.add_common_builds()    
+    if platform.system() == "Windows" and version.startswith('2.0.'):
+        # libevent 2.0 doesn't support shared build on Windows
+        builder.add_common_builds()
+    else:
+        builder.add_common_builds(shared_option_name=name+":shared")
     builder.run()
