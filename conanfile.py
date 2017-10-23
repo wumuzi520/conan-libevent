@@ -119,3 +119,7 @@ class LibeventConan(ConanFile):
         self.cpp_info.libs = tools.collect_libs(self)
         if self.settings.os == "Linux":
             self.cpp_info.libs.extend(["rt"])
+
+        if self.settings.os == "Windows":
+            if not self.options.shared:
+                self.cpp_info.libs.append('ws2_32')
