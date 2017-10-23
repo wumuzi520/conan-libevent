@@ -19,7 +19,6 @@ class LibeventConan(ConanFile):
         del self.settings.compiler.libcxx
         if self.settings.os == "Windows":
             self.options.shared = False
-            self.options.with_openssl = False
 
     def requirements(self):
         if self.options.with_openssl:
@@ -93,7 +92,10 @@ class LibeventConan(ConanFile):
 
         elif self.settings.os == "Windows":
             vcvars = tools.vcvars_command(self.settings)
-            make_command = "nmake -f Makefile.nmake"
+            suffix = ''
+            if self.options.with_openssl:
+                suffix = "OPENSSL_DIR=" + self.deps_cpp_info['OpenSSL'].rootpath
+            make_command = "nmake %s -f Makefile.nmake" % (suffix)
             with tools.chdir(self.FOLDER_NAME):
                 self.run("%s && %s" % (vcvars, make_command))
 
@@ -102,7 +104,7 @@ class LibeventConan(ConanFile):
         self.copy("*.h", dst="include", src="%s/include" % (self.FOLDER_NAME))
         if self.settings.os == "Windows":
             # Windows build is not using configure, so event-config.h is copied from WIN32-Code folder
-            self.copy("event-config.h", src="%s/WIN32-Code/event2" % (self.FOLDER_NAME), dst="include/event2")
+            self.copy("event-config.h", src="%s/WIN32-Code/nmake/event2" % (self.FOLDER_NAME), dst="include/event2")
             self.copy("tree.h", src="%s/WIN32-Code" % (self.FOLDER_NAME), dst="include")
             self.copy(pattern="*.lib", dst="lib", keep_path=False)
         for header in ['evdns', 'event', 'evhttp', 'evrpc', 'evutil']:
@@ -123,3 +125,5 @@ class LibeventConan(ConanFile):
         if self.settings.os == "Windows":
             if not self.options.shared:
                 self.cpp_info.libs.append('ws2_32')
+            if self.options.with_openssl:
+                self.cpp_info.defines.append('EVENT__HAVE_OPENSSL=1')
