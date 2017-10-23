@@ -1,6 +1,6 @@
 from conan.packager import ConanMultiPackager, os, re
 import platform
-
+import copy
 
 if __name__ == "__main__":
     reponame_a = os.getenv("APPVEYOR_REPO_NAME","")
@@ -30,4 +30,14 @@ if __name__ == "__main__":
         builder.add_common_builds()
     else:
         builder.add_common_builds(shared_option_name=name+":shared")
+
+    # Add Windows builds without OpenSSL too
+    if platform.system() == "Windows":
+        additional_builds = []
+        for build in builder.builds:
+            new_build = copy.copy(build)
+            new_build.options[name+":with_openssl"] = False
+            additional_builds.append(new_build)
+        builder.builds.extend(additional_builds)
+
     builder.run()
