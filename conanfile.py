@@ -14,6 +14,7 @@ class LibeventConan(ConanFile):
                "with_openssl": [True, False],
                "disable_threads": [True, False]}
     default_options = "shared=False", "with_openssl=True", "disable_threads=False"
+    exports = "print-winsock-errors.c"
 
     def config_options(self):
         del self.settings.compiler.libcxx
@@ -28,6 +29,8 @@ class LibeventConan(ConanFile):
     def source(self):
         tools.get("https://github.com/libevent/libevent/releases/download/release-{0}-stable/libevent-{0}-stable.tar.gz".format(self.version))
         os.rename("libevent-{0}-stable".format(self.version), "libevent")
+        # copy missing test source, https://github.com/libevent/libevent/issues/523
+        shutil.copy("print-winsock-errors.c", "libevent/test/")
 
     def build(self):
 
