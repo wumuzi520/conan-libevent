@@ -25,8 +25,8 @@ if __name__ == "__main__":
         os.environ["CONAN_REMOTES"]="https://api.bintray.com/conan/{0}/public-conan".format(username)
 
     builder = ConanMultiPackager()
-    if platform.system() == "Windows" and version.startswith('2.0.'):
-        # libevent 2.0 doesn't support shared build on Windows
+    if platform.system() == "Windows":
+        # libevent based on nmake doesn't support shared build on Windows
         builder.add_common_builds()
     else:
         builder.add_common_builds(shared_option_name=name+":shared")
