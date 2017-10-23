@@ -89,6 +89,13 @@ class LibeventConan(ConanFile):
                     for imported_lib in imported_libs:
                         os.unlink(self.FOLDER_NAME + '/' + imported_lib)
 
+        elif self.settings.os == "Windows":
+            vcvars = tools.vcvars_command(self.settings)
+            make_command = "nmake -f Makefile.nmake"
+            with tools.chdir(self.FOLDER_NAME):
+                self.run("%s && %s" % (vcvars, make_command))
+
+
     def package(self):
         self.copy("*.h", dst="include", src="%s/include" % (self.FOLDER_NAME))
         for header in ['evdns', 'event', 'evhttp', 'evrpc', 'evutil']:
@@ -102,7 +109,6 @@ class LibeventConan(ConanFile):
             self.copy(pattern="*.a", dst="lib", keep_path=False)
 
     def package_info(self):
-        if self.settings.os == "Linux" or self.settings.os == "Macos":
-            self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = tools.collect_libs(self)
         if self.settings.os == "Linux":
             self.cpp_info.libs.extend(["rt"])
