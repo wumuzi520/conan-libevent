@@ -98,6 +98,11 @@ class LibeventConan(ConanFile):
 
     def package(self):
         self.copy("*.h", dst="include", src="%s/include" % (self.FOLDER_NAME))
+        if self.settings.os == "Windows":
+            # Windows build is not using configure, so event-config.h is copied from WIN32-Code folder
+            self.copy("event-config.h", src="%s/WIN32-Code/event2" % (self.FOLDER_NAME), dst="include/event2")
+            self.copy("tree.h", src="%s/WIN32-Code" % (self.FOLDER_NAME), dst="include")
+            self.copy(pattern="*.lib", dst="lib", keep_path=False)
         for header in ['evdns', 'event', 'evhttp', 'evrpc', 'evutil']:
             self.copy(header+'.h', dst="include", src="%s" % (self.FOLDER_NAME))
         if self.options.shared:
