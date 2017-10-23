@@ -25,7 +25,6 @@ class LibeventConan(ConanFile):
 
     def source(self):
         tools.get("https://github.com/libevent/libevent/releases/download/release-{0}-stable/libevent-{0}-stable.tar.gz".format(self.version))
-        self.run('ls')
         os.rename("libevent-{0}-stable".format(self.version), "libevent")
 
     def build(self):
