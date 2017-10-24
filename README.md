@@ -1,3 +1,8 @@
+[ ![Download](https://api.bintray.com/packages/bincrafters/public-conan/libevent%3Abincrafters/images/download.svg?version=2.1.8%3Astable) ](https://bintray.com/bincrafters/public-conan/libevent%3Abincrafters/2.1.8%3Astable/link)
+[![Build Status](https://travis-ci.org/bincrafters/conan-libevent.svg?branch=stable%2F2.1.8)](https://travis-ci.org/bincrafters/conan-libevent)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/bincrafters/conan-libevent?svg=true)](https://ci.appveyor.com/project/BinCrafters/conan-libevent)
+
+
 ## This repository holds a conan recipe for libevent.
 
 [Conan.io](https://conan.io) package for [libevent](http://libevent.org/) project
@@ -8,14 +13,14 @@ The packages generated with this **conanfile** can be found in [Bintray](https:/
 
 ### Basic setup
 
-    $ conan install libevent/2.0.22@bincrafters/stable
+    $ conan install libevent/2.1.8@bincrafters/stable
 
 ### Project setup
 
 If you handle multiple dependencies in your project is better to add a *conanfile.txt*
 
     [requires]
-    libevent/2.0.22@bincrafters/stable
+    libevent/2.1.8@bincrafters/stable
 
     [generators]
     txt
@@ -42,7 +47,7 @@ The following command both runs all the steps of the conan file, and publishes t
 
 ## Upload
 
-    $ conan upload libevent/2.0.22@bincrafters/stable --all -r bincrafters
+    $ conan upload libevent/2.1.8@bincrafters/stable --all -r bincrafters
 
 ### License
 [3-Clause BSD](http://libevent.org/LICENSE.txt)
