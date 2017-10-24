@@ -1,6 +1,6 @@
 [ ![Download](https://api.bintray.com/packages/bincrafters/public-conan/libevent%3Abincrafters/images/download.svg?version=2.1.8%3Astable) ](https://bintray.com/bincrafters/public-conan/libevent%3Abincrafters/2.1.8%3Astable/link)
 [![Build Status](https://travis-ci.org/bincrafters/conan-libevent.svg?branch=stable%2F2.1.8)](https://travis-ci.org/bincrafters/conan-libevent)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/bincrafters/conan-libevent?svg=true)](https://ci.appveyor.com/project/BinCrafters/conan-libevent)
+[![Build status](https://ci.appveyor.com/api/projects/status/yxj9deyub8b7p34c/branch/stable/2.1.8?svg=true)](https://ci.appveyor.com/project/BinCrafters/conan-libevent/branch/stable/2.1.8)
 
 
 ## This repository holds a conan recipe for libevent.
