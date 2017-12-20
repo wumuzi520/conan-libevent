@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
 import os
 import shutil
@@ -8,7 +11,7 @@ class LibeventConan(ConanFile):
     url = "https://github.com/theirix/conan-libevent"
     description = 'libevent - an event notification library'
     license = "https://github.com/libevent/libevent/blob/release-%s-stable/LICENSE" % version
-    FOLDER_NAME = 'libevent'
+    website = "https://libevent.org"
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False],
                "with_openssl": [True, False],
@@ -28,7 +31,7 @@ class LibeventConan(ConanFile):
 
     def source(self):
         tools.get("https://github.com/libevent/libevent/releases/download/release-{0}-stable/libevent-{0}-stable.tar.gz".format(self.version))
-        os.rename("libevent-{0}-stable".format(self.version), "libevent")
+        os.rename("libevent-{0}-stable".format(self.version), "sources")
 
     def build(self):
 
@@ -47,7 +50,7 @@ class LibeventConan(ConanFile):
                 if self.settings.os == "Macos":
                     imported_libs = os.listdir(self.deps_cpp_info['OpenSSL'].lib_paths[0])
                     for imported_lib in imported_libs:
-                        shutil.copy(self.deps_cpp_info['OpenSSL'].lib_paths[0] + '/' + imported_lib, self.FOLDER_NAME)
+                        shutil.copy(self.deps_cpp_info['OpenSSL'].lib_paths[0] + '/' + imported_lib, "sources")
                     self.output.warn("Copying OpenSSL libraries to fix conftest")
                 if self.settings.os == "Linux":
                     if 'LD_LIBRARY_PATH' in env_vars:
@@ -62,7 +65,7 @@ class LibeventConan(ConanFile):
             # disable rpath build
             old_str = "-install_name \\$rpath/"
             new_str = "-install_name "
-            tools.replace_in_file("%s/configure" % self.FOLDER_NAME, old_str, new_str)
+            tools.replace_in_file("sources/configure", old_str, new_str)
 
             # compose configure options
             suffix = ''
@@ -78,35 +81,35 @@ class LibeventConan(ConanFile):
             self.output.warn('Using env vars: ' + repr(env_vars))
             with tools.environment_append(env_vars):
 
-                cmd = 'cd %s && ./configure %s' % (self.FOLDER_NAME, suffix)
+                cmd = 'cd sources && ./configure %s' % (suffix)
                 self.output.warn('Running: ' + cmd)
                 self.run(cmd)
 
-                cmd = 'cd %s && make' % (self.FOLDER_NAME)
+                cmd = 'cd sources && make'
                 self.output.warn('Running: ' + cmd)
                 self.run(cmd)
 
                 # now clean imported libs
                 if imported_libs:
                     for imported_lib in imported_libs:
-                        os.unlink(self.FOLDER_NAME + '/' + imported_lib)
+                        os.unlink('sources/' + imported_lib)
 
         elif self.settings.os == "Windows":
             vcvars = tools.vcvars_command(self.settings)
             make_command = "nmake -f Makefile.nmake"
-            with tools.chdir(self.FOLDER_NAME):
+            with tools.chdir('sources'):
                 self.run("%s && %s" % (vcvars, make_command))
 
 
     def package(self):
-        self.copy("*.h", dst="include", src="%s/include" % (self.FOLDER_NAME))
+        self.copy("*.h", dst="include", src="sources/include")
         if self.settings.os == "Windows":
             # Windows build is not using configure, so event-config.h is copied from WIN32-Code folder
-            self.copy("event-config.h", src="%s/WIN32-Code/event2" % (self.FOLDER_NAME), dst="include/event2")
-            self.copy("tree.h", src="%s/WIN32-Code" % (self.FOLDER_NAME), dst="include")
+            self.copy("event-config.h", src="sources/WIN32-Code/event2", dst="include/event2")
+            self.copy("tree.h", src="sources/WIN32-Code", dst="include")
             self.copy(pattern="*.lib", dst="lib", keep_path=False)
         for header in ['evdns', 'event', 'evhttp', 'evrpc', 'evutil']:
-            self.copy(header+'.h', dst="include", src="%s" % (self.FOLDER_NAME))
+            self.copy(header+'.h', dst="include", src="sources")
         if self.options.shared:
             if self.settings.os == "Macos":
                 self.copy(pattern="*.dylib", dst="lib", keep_path=False)
