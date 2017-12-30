@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from conans import ConanFile, AutoToolsBuildEnvironment, tools
+from conans import ConanFile, AutoToolsBuildEnvironment, RunEnvironment, tools
 import os
 import shutil
 
@@ -42,30 +42,23 @@ class LibeventConan(ConanFile):
             env_vars = env_build.vars.copy()
             # Configure script creates conftest that cannot execute without shared openssl binaries.
             # Ways to solve the problem:
-            # 1. set *LD_LIBRARY_PATH (works with Linux but does not work on OS X 10.11 with SIP)
+            # 1. set *LD_LIBRARY_PATH (works with Linux with RunEnvironment but does not work on OS X 10.11 with SIP)
             # 2. copying dylib's to the build directory (fortunately works on OS X)
-            # 3. set rpath (dangerous)
             imported_libs = []
-            if self.options.with_openssl and self.options.shared:
-                if self.settings.os == "Macos":
-                    imported_libs = os.listdir(self.deps_cpp_info['OpenSSL'].lib_paths[0])
-                    for imported_lib in imported_libs:
-                        shutil.copy(self.deps_cpp_info['OpenSSL'].lib_paths[0] + '/' + imported_lib, "sources")
-                    self.output.warn("Copying OpenSSL libraries to fix conftest")
-                if self.settings.os == "Linux":
-                    if 'LD_LIBRARY_PATH' in env_vars:
-                        env_vars['LD_LIBRARY_PATH'] = ':'.join([env_vars['LD_LIBRARY_PATH']] + self.deps_cpp_info.libdirs)
-                    else:
-                        env_vars['LD_LIBRARY_PATH'] = ':'.join(self.deps_cpp_info.libdirs)
+            if self.options.shared and self.settings.os == "Macos":
+                for dep in self.deps_cpp_info.deps:
+                    for libname in os.listdir(self.deps_cpp_info[dep].lib_paths[0]):
+                        if libname.endswith('.dylib'):
+                            shutil.copy(self.deps_cpp_info[dep].lib_paths[0] + '/' + libname, "sources")
+                            imported_libs.append(libname)
+                self.output.warn("Copying OpenSSL libraries to fix conftest: " + repr(imported_libs))
 
             # required to correctly find static libssl on Linux
             if self.options.with_openssl and self.settings.os == "Linux":
                 env_vars['OPENSSL_LIBADD'] = '-ldl'
 
             # disable rpath build
-            old_str = "-install_name \\$rpath/"
-            new_str = "-install_name "
-            tools.replace_in_file("sources/configure", old_str, new_str)
+            tools.replace_in_file("sources/configure", r"-install_name \$rpath/", "-install_name ")
 
             # compose configure options
             suffix = ''
@@ -78,21 +71,22 @@ class LibeventConan(ConanFile):
             if self.options.disable_threads:
                 suffix += "--disable-thread-support "
 
-            self.output.warn('Using env vars: ' + repr(env_vars))
             with tools.environment_append(env_vars):
 
-                cmd = 'cd sources && ./configure %s' % (suffix)
-                self.output.warn('Running: ' + cmd)
-                self.run(cmd)
+                with tools.chdir('sources'):
+                    # set LD_LIBRARY_PATH
+                    with tools.environment_append(RunEnvironment(self).vars):
+                        cmd = './configure %s' % (suffix)
+                        self.output.warn('Running: ' + cmd)
+                        self.run(cmd)
 
-                cmd = 'cd sources && make'
-                self.output.warn('Running: ' + cmd)
-                self.run(cmd)
+                        cmd = 'make'
+                        self.output.warn('Running: ' + cmd)
+                        self.run(cmd)
 
-                # now clean imported libs
-                if imported_libs:
+                    # now clean imported libs
                     for imported_lib in imported_libs:
-                        os.unlink('sources/' + imported_lib)
+                        os.unlink(imported_lib)
 
         elif self.settings.os == "Windows":
             vcvars = tools.vcvars_command(self.settings)
