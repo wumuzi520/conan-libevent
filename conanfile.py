@@ -10,7 +10,7 @@ class LibeventConan(ConanFile):
     version = "2.0.22"
     url = "https://github.com/theirix/conan-libevent"
     description = 'libevent - an event notification library'
-    license = "https://github.com/libevent/libevent/blob/release-%s-stable/LICENSE" % version
+    license = "BSD-3-Clause"
     website = "https://libevent.org"
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False],
@@ -96,6 +96,7 @@ class LibeventConan(ConanFile):
 
 
     def package(self):
+        self.copy("LICENSE", dst="licenses", ignore_case=True, keep_path=False)
         self.copy("*.h", dst="include", src="sources/include")
         if self.settings.os == "Windows":
             # Windows build is not using configure, so event-config.h is copied from WIN32-Code folder
