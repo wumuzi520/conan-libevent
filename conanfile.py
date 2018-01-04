@@ -134,7 +134,6 @@ class LibeventConan(ConanFile):
             self.cpp_info.libs.extend(["rt"])
 
         if self.settings.os == "Windows":
-            if not self.options.shared:
-                self.cpp_info.libs.append('ws2_32')
+            self.cpp_info.libs.append('ws2_32')
             if self.is_v21 and self.options.with_openssl:
                 self.cpp_info.defines.append('EVENT__HAVE_OPENSSL=1')
