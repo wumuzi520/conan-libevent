@@ -74,11 +74,11 @@ if __name__ == "__main__":
 
     # Add Windows builds without OpenSSL too
     if platform.system() == "Windows":
-        additional_builds = []
-        for build in builder.builds:
-            new_build = copy.copy(build)
-            new_build.options[name+":with_openssl"] = False
-            additional_builds.append(new_build)
-        builder.builds.extend(additional_builds)
+        builds = []
+        for settings, options, env_vars, build_requires in builder.builds:
+            new_options = copy.copy(options)
+            new_options[name+":with_openssl"] = False
+            builds.append([settings, new_options, env_vars, build_requires])
+        builder.builds = builds
 
     builder.run()
