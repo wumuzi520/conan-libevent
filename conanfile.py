@@ -17,6 +17,11 @@ class LibeventConan(ConanFile):
                "with_openssl": [True, False],
                "disable_threads": [True, False]}
     default_options = "shared=False", "with_openssl=True", "disable_threads=False"
+    exports = ["LICENSE.md"]
+    exports_sources = ["print-winsock-errors.c"]
+    author = "Bincrafters <bincrafters@gmail.com>"
+
+    is_v21 = version.startswith('2.1.')
 
     def config_options(self):
         del self.settings.compiler.libcxx
@@ -32,6 +37,8 @@ class LibeventConan(ConanFile):
     def source(self):
         tools.get("https://github.com/libevent/libevent/releases/download/release-{0}-stable/libevent-{0}-stable.tar.gz".format(self.version))
         os.rename("libevent-{0}-stable".format(self.version), "sources")
+        if self.is_v21:
+            shutil.copy("print-winsock-errors.c", "sources/test/")
 
     def build(self):
 
@@ -90,7 +97,10 @@ class LibeventConan(ConanFile):
 
         elif self.settings.os == "Windows":
             vcvars = tools.vcvars_command(self.settings)
-            make_command = "nmake -f Makefile.nmake"
+            suffix = ''
+            if self.is_v21 and self.options.with_openssl:
+                suffix = "OPENSSL_DIR=" + self.deps_cpp_info['OpenSSL'].rootpath
+            make_command = "nmake %s -f Makefile.nmake" % suffix
             with tools.chdir('sources'):
                 self.run("%s && %s" % (vcvars, make_command))
 
@@ -99,8 +109,11 @@ class LibeventConan(ConanFile):
         self.copy("LICENSE", dst="licenses", ignore_case=True, keep_path=False)
         self.copy("*.h", dst="include", src="sources/include")
         if self.settings.os == "Windows":
-            # Windows build is not using configure, so event-config.h is copied from WIN32-Code folder
-            self.copy("event-config.h", src="sources/WIN32-Code/event2", dst="include/event2")
+            if self.is_v21:
+                self.copy("event-config.h", src="sources/WIN32-Code/nmake/event2", dst="include/event2")
+            else:
+                # Windows build is not using configure, so event-config.h is copied from WIN32-Code folder
+                self.copy("event-config.h", src="sources/WIN32-Code/event2", dst="include/event2")
             self.copy("tree.h", src="sources/WIN32-Code", dst="include")
             self.copy(pattern="*.lib", dst="lib", keep_path=False)
         for header in ['evdns', 'event', 'evhttp', 'evrpc', 'evutil']:
@@ -121,3 +134,5 @@ class LibeventConan(ConanFile):
         if self.settings.os == "Windows":
             if not self.options.shared:
                 self.cpp_info.libs.append('ws2_32')
+            if self.is_v21 and self.options.with_openssl:
+                self.cpp_info.defines.append('EVENT__HAVE_OPENSSL=1')
