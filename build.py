@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from conan.packager import ConanMultiPackager
-import os
-import re
-import platform
+import os, re, platform, copy
 
 
 def get_value_from_recipe(search_string):
@@ -60,12 +58,12 @@ if __name__ == "__main__":
     upload = "https://api.bintray.com/conan/{0}/public-conan".format(username)
 
     builder = ConanMultiPackager(
-        username=username,
-        channel=channel,
-        reference=reference,
+        username=username, 
+        channel=channel, 
+        reference=reference, 
         upload=upload,
-        remotes=upload,  # while redundant, this moves bincrafters remote to position 0
-        upload_only_when_stable=True,
+        remotes=upload, #while redundant, this moves bincrafters remote to position 0
+        upload_only_when_stable=True, 
         stable_branch_pattern="stable/*")
 
     if platform.system() == "Windows" and version.startswith('2.0.'):
@@ -73,4 +71,14 @@ if __name__ == "__main__":
         builder.add_common_builds()
     else:
         builder.add_common_builds(shared_option_name=name+":shared")
+
+    # Add Windows builds without OpenSSL too
+    if platform.system() == "Windows":
+        additional_builds = []
+        for build in builder.builds:
+            new_build = copy.copy(build)
+            new_build.options[name+":with_openssl"] = False
+            additional_builds.append(new_build)
+        builder.builds.extend(additional_builds)
+
     builder.run()
