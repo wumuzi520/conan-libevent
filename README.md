@@ -1,48 +1,46 @@
-## This repository holds a conan recipe for libevent.
+## Package Status
 
-[Conan.io](https://conan.io) package for [libevent](http://libevent.org/) project
+| Bintray | Appveyor | Travis |
+|---------|-----------|--------|
+[![Build status](https://ci.appveyor.com/api/projects/status/yxj9deyub8b7p34c?svg=true)](https://ci.appveyor.com/project/BinCrafters/conan-libevent)
+|[![Download](https://api.bintray.com/packages/bincrafters/public-conan/libevent%3Abincrafters/images/download.svg)](https://bintray.com/bincrafters/public-conan/libevent%3Abincrafters/_latestVersion)||[![Build Status](https://travis-ci.org/bincrafters/conan-libevent.svg?branch=stable%2F2.0.22)](https://travis-ci.org/bincrafters/conan-libevent)|
 
-The packages generated with this **conanfile** can be found in [Bintray](https://bintray.com/bincrafters/public-conan/libevent%3Abincrafters).
+## Conan.io Information
 
-## For Users: Use this package
+Bincrafters packages can be found in the following public Conan repository:
 
-### Basic setup
+[Bincrafters Public Conan Repository on Bintray](https://bintray.com/bincrafters/public-conan)
 
-    $ conan install libevent/2.0.22@bincrafters/stable
+*Note: You can click the "Set Me Up" button on the Bintray page above for instructions on using packages from this repository.*
 
-### Project setup
+## Issues
 
-If you handle multiple dependencies in your project is better to add a *conanfile.txt*
+If you wish to report an issue or make a request for a Bincrafters package, please do so here:
 
-    [requires]
-    libevent/2.0.22@bincrafters/stable
+[Bincrafters Community Issues](https://github.com/bincrafters/community/issues)
 
-    [generators]
-    txt
+## General Information
 
-Complete the installation of requirements for your project running:
+This GIT repository is managed by the Bincrafters team and holds files related to Conan.io.  For detailed information about Bincrafters and Conan.io, please visit the following resources:
 
-    $ mkdir build && cd build && conan install ..
-	
-Note: It is recommended that you run conan install from a build directory and not the root of the project directory.  This is because conan generates *conanbuildinfo* files specific to a single build configuration which by default comes from an autodetected default profile located in ~/.conan/profiles/default .  If you pass different build configuration options to conan install, it will generate different *conanbuildinfo* files.  Thus, they should not be added to the root of the project, nor committed to git. 
+[Bincrafters Wiki - Common README](https://github.com/bincrafters/community/wiki/Common-README.md)
 
-## For Packagers: Publish this Package
+[Bincrafters Technical Documentation](http://bincrafters.readthedocs.io/en/latest/)
 
-The example below shows the commands used to publish to bincrafters conan repository. To publish to your own conan respository (for example, after forking this git repository), you will need to change the commands below accordingly. 
+[Bincrafters Blog](https://bincrafters.github.io)
 
-## Build  and package 
+## License Information
 
-The following command both runs all the steps of the conan file, and publishes the package to the local system cache.  This includes downloading dependencies from "build_requires" and "requires" , and then running the build() method. 
+Bincrafters packages are hosted on [Bintray](https://bintray.com) and contain Open-Source software which is licensed by the software's maintainers and NOT Bincrafters.  For each Open-Source package published by Bincrafters, the packaging process obtains the required license files along with the original source files from the maintainer, and includes these license files in the generated Conan packages.
 
-    $ conan create bincrafters/stable
-	
-## Add Remote
+The contents of this GIT repository are completely separate from the software being packaged and therefor licensed separately.  The license for all files contained in this GIT repository are defined in the [LICENSE.md](LICENSE.md) file in this repository.  The licenses included with all Conan packages published by Bincrafters can be found in the Conan package directories in the following locations, relative to the Conan Cache root (`~/.conan` by default):
 
-	$ conan remote add bincrafters "https://api.bintray.com/conan/bincrafters/public-conan"
+### License(s) for packaged software:
 
-## Upload
+    ~/.conan/data/libevent/2.0.22/bincrafters/package/a4f6c4cfba391492265533621e6784b527c7c34b/license/LICENSE
 
-    $ conan upload libevent/2.0.22@bincrafters/stable --all -r bincrafters
+*Note :   The most common filenames for OSS licenses are `LICENSE` AND `COPYING` without file extensions.*
 
-### License
-[3-Clause BSD](http://libevent.org/LICENSE.txt)
+### License for Bincrafters recipe:
+
+    ~/.conan/data/libevent/2.0.22/bincrafters/stable/export/LICENSE.md
