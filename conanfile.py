@@ -38,6 +38,7 @@ class LibeventConan(ConanFile):
         tools.get("https://github.com/libevent/libevent/releases/download/release-{0}-stable/libevent-{0}-stable.tar.gz".format(self.version))
         os.rename("libevent-{0}-stable".format(self.version), "sources")
         if self.is_v21:
+            # copy missing test source, https://github.com/libevent/libevent/issues/523
             shutil.copy("print-winsock-errors.c", "sources/test/")
 
     def build(self):
