@@ -27,7 +27,7 @@ class LibeventConan(ConanFile):
         del self.settings.compiler.libcxx
         if self.settings.os == "Windows":
             self.options.shared = False
-            if not is_v21:
+            if version.startswith('2.0.'):
                 self.options.with_openssl = False
 
     def requirements(self):
