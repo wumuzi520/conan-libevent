@@ -7,7 +7,7 @@ import shutil
 
 class LibeventConan(ConanFile):
     name = "libevent"
-    version = "2.0.22"
+    version = "2.1.8"
     url = "https://github.com/theirix/conan-libevent"
     description = 'libevent - an event notification library'
     license = "BSD-3-Clause"
