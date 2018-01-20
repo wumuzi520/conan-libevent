@@ -10,7 +10,7 @@ class LibeventConan(ConanFile):
     version = "2.1.8"
     url = "https://github.com/theirix/conan-libevent"
     description = 'libevent - an event notification library'
-    license = "BSD-3-Clause"
+    license = "BSD 3-Clause"
     website = "https://libevent.org"
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False],
