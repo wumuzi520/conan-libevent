@@ -2,8 +2,8 @@
 
 | Bintray | Appveyor | Travis |
 |---------|-----------|--------|
-[![Build status](https://ci.appveyor.com/api/projects/status/yxj9deyub8b7p34c?svg=true)](https://ci.appveyor.com/project/BinCrafters/conan-libevent)
-|[![Download](https://api.bintray.com/packages/bincrafters/public-conan/libevent%3Abincrafters/images/download.svg)](https://bintray.com/bincrafters/public-conan/libevent%3Abincrafters/_latestVersion)||[![Build Status](https://travis-ci.org/bincrafters/conan-libevent.svg?branch=stable%2F2.0.22)](https://travis-ci.org/bincrafters/conan-libevent)|
+|BINTRAY_BADGE_URL|APPVEYOR_BADGE_URL|TRAVIS_BADGE_URL|
+|[ ![Download](https://api.bintray.com/packages/bincrafters/public-conan/libevent%3Abincrafters/images/download.svg) ](https://bintray.com/bincrafters/public-conan/libevent%3Abincrafters/_latestVersion)|[![Build status](https://ci.appveyor.com/api/projects/status/github/bincrafters/conan-libevent?svg=true)](https://ci.appveyor.com/project/BinCrafters/conan-libevent)|[![Build Status](https://travis-ci.org/bincrafters/conan-libevent.svg)](https://travis-ci.org/bincrafters/conan-libevent)|
 
 ## Conan.io Information
 
@@ -37,10 +37,12 @@ The contents of this GIT repository are completely separate from the software be
 
 ### License(s) for packaged software:
 
-    ~/.conan/data/libevent/2.0.22/bincrafters/package/a4f6c4cfba391492265533621e6784b527c7c34b/license/LICENSE
+    ~/.conan/data/<pkg_name>/<pkg_version>/bincrafters/package/<random_package_id>/license/<LICENSE_FILES_HERE>
 
 *Note :   The most common filenames for OSS licenses are `LICENSE` AND `COPYING` without file extensions.*
-
+	
 ### License for Bincrafters recipe:
 
-    ~/.conan/data/libevent/2.0.22/bincrafters/stable/export/LICENSE.md
+    ~/.conan/data/<pkg_name>/<pkg_version>/bincrafters/export/LICENSE.md
+
+	
