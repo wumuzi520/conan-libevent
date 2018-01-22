@@ -19,28 +19,34 @@ class LibeventConan(ConanFile):
     default_options = "shared=False", "with_openssl=True", "disable_threads=False"
     exports = ["LICENSE.md"]
     exports_sources = ["print-winsock-errors.c"]
-    author = "Bincrafters <bincrafters@gmail.com>"
+    source_subfolder = "source_subfolder"
 
-    is_v21 = version.startswith('2.1.')
+    @property
+    def is_v21(self):
+        return self.version.startswith('2.1.')
+
+    @property
+    def is_v20(self):
+        return self.version.startswith('2.0.')
 
     def config_options(self):
         del self.settings.compiler.libcxx
-        if self.settings.os == "Windows":
-            self.options.shared = False
-            if self.version.startswith('2.0.'):
-                self.options.with_openssl = False
+        # 2.0 cannot do openssl on Windows
+        if self.settings.os == "Windows" and self.is_v20:
+            self.options.with_openssl = False
 
     def requirements(self):
         if self.options.with_openssl:
             self.requires.add("OpenSSL/[>1.0.2a,<1.0.3]@conan/stable", private=False)
-            self.options["OpenSSL"].shared = self.options.shared
+            # do not force shared
+            #self.options["OpenSSL"].shared = self.options.shared
 
     def source(self):
         tools.get("https://github.com/libevent/libevent/releases/download/release-{0}-stable/libevent-{0}-stable.tar.gz".format(self.version))
-        os.rename("libevent-{0}-stable".format(self.version), "sources")
+        os.rename("libevent-{0}-stable".format(self.version), self.source_subfolder)
         if self.is_v21:
             # copy missing test source, https://github.com/libevent/libevent/issues/523
-            shutil.copy("print-winsock-errors.c", "sources/test/")
+            shutil.copy("print-winsock-errors.c", os.path.join(self.source_subfolder,"test/"))
 
     def build(self):
 
@@ -58,7 +64,7 @@ class LibeventConan(ConanFile):
                 for dep in self.deps_cpp_info.deps:
                     for libname in os.listdir(self.deps_cpp_info[dep].lib_paths[0]):
                         if libname.endswith('.dylib'):
-                            shutil.copy(self.deps_cpp_info[dep].lib_paths[0] + '/' + libname, "sources")
+                            shutil.copy(self.deps_cpp_info[dep].lib_paths[0] + '/' + libname, self.source_subfolder)
                             imported_libs.append(libname)
                 self.output.warn("Copying OpenSSL libraries to fix conftest: " + repr(imported_libs))
 
@@ -67,7 +73,7 @@ class LibeventConan(ConanFile):
                 env_vars['OPENSSL_LIBADD'] = '-ldl'
 
             # disable rpath build
-            tools.replace_in_file("sources/configure", r"-install_name \$rpath/", "-install_name ")
+            tools.replace_in_file(os.path.join(self.source_subfolder, "configure"), r"-install_name \$rpath/", "-install_name ")
 
             # compose configure options
             suffix = ''
@@ -82,7 +88,7 @@ class LibeventConan(ConanFile):
 
             with tools.environment_append(env_vars):
 
-                with tools.chdir('sources'):
+                with tools.chdir(self.source_subfolder):
                     # set LD_LIBRARY_PATH
                     with tools.environment_append(RunEnvironment(self).vars):
                         cmd = './configure %s' % (suffix)
@@ -103,23 +109,23 @@ class LibeventConan(ConanFile):
             if self.is_v21 and self.options.with_openssl:
                 suffix = "OPENSSL_DIR=" + self.deps_cpp_info['OpenSSL'].rootpath
             make_command = "nmake %s -f Makefile.nmake" % suffix
-            with tools.chdir('sources'):
+            with tools.chdir(self.source_subfolder):
                 self.run("%s && %s" % (vcvars, make_command))
 
 
     def package(self):
         self.copy("LICENSE", dst="licenses", ignore_case=True, keep_path=False)
-        self.copy("*.h", dst="include", src="sources/include")
+        self.copy("*.h", dst="include", src=os.path.join(self.source_subfolder, "include"))
         if self.settings.os == "Windows":
             if self.is_v21:
-                self.copy("event-config.h", src="sources/WIN32-Code/nmake/event2", dst="include/event2")
+                self.copy("event-config.h", src=os.path.join(self.source_subfolder, "WIN32-Code", "nmake", "event2"), dst="include/event2")
             else:
                 # Windows build is not using configure, so event-config.h is copied from WIN32-Code folder
-                self.copy("event-config.h", src="sources/WIN32-Code/event2", dst="include/event2")
-            self.copy("tree.h", src="sources/WIN32-Code", dst="include")
+                self.copy("event-config.h", src=os.path.join(self.source_subfolder, "WIN32-Code", "event2"), dst="include/event2")
+            self.copy("tree.h", src=os.path.join(self.source_subfolder, "WIN32-Code"), dst="include")
             self.copy(pattern="*.lib", dst="lib", keep_path=False)
         for header in ['evdns', 'event', 'evhttp', 'evrpc', 'evutil']:
-            self.copy(header+'.h', dst="include", src="sources")
+            self.copy(header+'.h', dst="include", src=self.source_subfolder)
         if self.options.shared:
             if self.settings.os == "Macos":
                 self.copy(pattern="*.dylib", dst="lib", keep_path=False)
