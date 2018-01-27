@@ -88,6 +88,8 @@ class LibeventConan(ConanFile):
                 suffix += "--disable-openssl "
             if self.options.disable_threads:
                 suffix += "--disable-thread-support "
+            # workaround for gcc 6.4
+            suffix += "--disable-gcc-warnings "
 
             with tools.environment_append(env_vars):
 
