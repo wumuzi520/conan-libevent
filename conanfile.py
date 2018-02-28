@@ -8,18 +8,18 @@ import shutil
 class LibeventConan(ConanFile):
     name = "libevent"
     version = "2.0.22"
-    url = "https://github.com/theirix/conan-libevent"
     description = 'libevent - an event notification library'
+    url = "https://github.com/theirix/conan-libevent"
+    homepage = "https://libevent.org"
     license = "BSD 3-Clause"
-    website = "https://libevent.org"
+    exports = ["LICENSE.md"]
+    exports_sources = ["print-winsock-errors.c", "FindLibEvent.cmake"]
+    source_subfolder = "source_subfolder"
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False],
                "with_openssl": [True, False],
                "disable_threads": [True, False]}
     default_options = "shared=False", "with_openssl=True", "disable_threads=False"
-    exports = ["LICENSE.md"]
-    exports_sources = ["print-winsock-errors.c"]
-    source_subfolder = "source_subfolder"
 
     @property
     def is_v21(self):
@@ -118,6 +118,7 @@ class LibeventConan(ConanFile):
 
     def package(self):
         self.copy("LICENSE", dst="licenses", ignore_case=True, keep_path=False)
+        self.copy("FindLibEvent.cmake", dst=".", ignore_case=True, keep_path=False)
         self.copy("*.h", dst="include", src=os.path.join(self.source_subfolder, "include"))
         if self.settings.os == "Windows":
             if self.is_v21:
