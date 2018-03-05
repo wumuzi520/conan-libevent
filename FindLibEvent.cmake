@@ -1,0 +1,18 @@
+#
+# Find LIBEVENT
+#
+#  LIBEVENT_INCLUDE_DIR - where to find event.h, etc.
+#  LIBEVENT_LIBRARY     - List of libraries when using libevent.
+#  LIBEVENT_FOUND       - True if libevent found.
+
+FIND_PATH(LIBEVENT_INCLUDE_DIR event.h)
+
+FIND_LIBRARY(LIBEVENT_LIBRARY NAMES event)
+
+# handle the QUIETLY and REQUIRED arguments and set LIBEVENT_FOUND to TRUE if
+# all listed variables are TRUE
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(LIBEVENT DEFAULT_MSG LIBEVENT_LIBRARY LIBEVENT_INCLUDE_DIR)
+
+MARK_AS_ADVANCED(LIBEVENT_LIBRARY LIBEVENT_INCLUDE_DIR)
+
